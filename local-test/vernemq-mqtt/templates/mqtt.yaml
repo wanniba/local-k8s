@@ -1,0 +1,115 @@
+
+# vernemq-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vernemq-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default  # 根据实际命名空间调整
+  name: vernemq-role
+rules:
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vernemq-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: vernemq-sa
+roleRef:
+  kind: Role
+  name: vernemq-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vernemq-config
+data:
+  vernemq.conf: |
+    allow_anonymous = on
+    listener.tcp.default = 0.0.0.0:1883
+    listener.tcp.default.allow_anonymous = on
+    accept_eula = yes
+  vm.args: |
+    -name VerneMQ@127.0.0.1
+    -setcookie vmq
+    +K true
+    +A 64
+    -env ERL_MAX_PORTS 262144
+    -env ERL_FULLSWEEP_AFTER 0
+    -env ERL_CRASH_DUMP /erl_crash.dump
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt-vernemq
+spec:
+  ports:
+  - port: 1883
+    targetPort: 1883
+    protocol: TCP
+    name: mqtt
+  selector:
+    app: vernemq
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mqtt-vernemq 
+spec:
+  serviceName: mqtt-vernemq
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vernemq
+  template:
+    metadata:
+      labels:
+        app: vernemq
+    spec:
+      serviceAccountName: vernemq-sa
+      # 删除顶层的 securityContext
+      containers:
+      - name: vernemq
+        image: vernemq/vernemq:latest
+        # 添加容器级别的 securityContext
+        securityContext:
+          runAsUser: 10000
+          runAsGroup: 10000
+          # 添加这些权限
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        ports:
+        - name: mqtt
+          containerPort: 1883
+        volumeMounts:
+        - name: config
+          mountPath: /vernemq/etc/vernemq.conf
+          subPath: vernemq.conf
+        - name: config-vm-args  # 添加 vm.args 挂载
+          mountPath: /vernemq/etc/vm.args
+          subPath: vm.args
+        # 添加配置目录的挂载
+        - name: config-dir
+          mountPath: /vernemq/etc
+        env:
+        - name: DOCKER_VERNEMQ_ACCEPT_EULA
+          value: "yes"
+      volumes:
+      - name: config
+        configMap:
+          name: vernemq-config
+      # 添加配置目录的 volume
+      - name: config-vm-args  # 添加 vm.args 配置卷
+        configMap:
+          name: vernemq-config

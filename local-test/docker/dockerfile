@@ -1,0 +1,21 @@
+# Dockerfile
+FROM vernemq/vernemq:latest
+
+# 复制本地配置文件
+COPY config/vernemq.conf /vernemq/etc/vernemq.conf
+COPY config/vm.args /vernemq/etc/vm.args
+
+# 设置权限
+RUN chown vernemq:vernemq /vernemq/etc/vernemq.conf \
+    && chown vernemq:vernemq /vernemq/etc/vm.args \
+    && chmod 644 /vernemq/etc/vernemq.conf \
+    && chmod 644 /vernemq/etc/vm.args
+
+# 环境变量设置
+ENV DOCKER_VERNEMQ_ACCEPT_EULA=yes
+
+# 暴露端口
+EXPOSE 1883 8888
+
+# 使用默认的启动命令
+CMD ["/usr/sbin/start_vernemq"]

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  vernemq:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: my-vernemq
+    ports:
+      - "1883:1883"      # MQTT
+      - "8888:8888"      # HTTP/WebSocket
+    volumes:
+      - vernemq-data:/vernemq/data
+    environment:
+      - DOCKER_VERNEMQ_ACCEPT_EULA=yes
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    restart: unless-stopped
+
+volumes:
+  vernemq-data:
