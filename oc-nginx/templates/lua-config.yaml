@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lua-scripts
+data:
+  validate_san_hazelcast.lua: |
+    local socket = require("socket")
+
+    -- Hazelcast service connection details
+    local hazelcast_host = "hazelcast-headless-service.default.svc.cluster.local"
+    local hazelcast_port = 5701
+
+    -- Function to extract SAN fields from the client certificate
+    local function get_san_fields()
+        local san = ngx.var.ssl_client_s_dn  -- Extract the DN from the certificate
+        if not san then
+            ngx.log(ngx.ERR, "SAN field missing from certificate")
+            return nil
+        end
+
+        -- Extract all DNS SAN fields
+        local fields = {}
+        for field in string.gmatch(san, "DNS:([%w%.%-]+)") do
+            table.insert(fields, field)
+        end
+        return fields
+    end
+
+    -- Function to validate the device ID against Hazelcast
+    local function validate_device_id(device_id)
+        local tcp = assert(socket.tcp())
+        tcp:settimeout(1)  -- 1 second timeout
+
+        -- Connect to Hazelcast
+        local ok, err = tcp:connect(hazelcast_host, hazelcast_port)
+        if not ok then
+            ngx.log(ngx.ERR, "Failed to connect to Hazelcast: ", err)
+            return false
+        end
+
+        -- Build the HTTP request to query Hazelcast
+        local request = "GET /hazelcast/rest/maps/valid_devices/" .. device_id .. " HTTP/1.1\r\n\r\n"
+        tcp:send(request)
+
+        -- Receive the response from Hazelcast
+        local response, err = tcp:receive('*a')
+        tcp:close()
+
+        if not response then
+            ngx.log(ngx.ERR, "Failed to get response from Hazelcast: ", err)
+            return false
+        end
+
+        -- Check if the device ID exists in Hazelcast
+        if response:find("404") then
+            ngx.log(ngx.ERR, "Device ID not found in Hazelcast: ", device_id)
+            return false
+        end
+
+        return true
+    end
+
+    -- Main function to handle the validation logic
+    local function main()
+        local san_fields = get_san_fields()
+        if not san_fields then
+            ngx.exit(ngx.HTTP_FORBIDDEN)  -- Reject if no SAN fields found
+        end
+
+        -- Assume the first SAN field is the device ID (customize as needed)
+        local device_id = san_fields[1]
+        if not validate_device_id(device_id) then
+            ngx.exit(ngx.HTTP_FORBIDDEN)  -- Reject if validation fails
+        end
+
+        ngx.log(ngx.INFO, "Device authenticated: ", device_id)
+    end
+
+    -- Execute the main function
+    main()
