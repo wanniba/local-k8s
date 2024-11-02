@@ -13,6 +13,7 @@ services:
       - vernemq-data:/vernemq/data
     environment:
       - DOCKER_VERNEMQ_ACCEPT_EULA=yes
+      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
     ulimits:
       nofile:
         soft: 262144
