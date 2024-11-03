@@ -10,7 +10,7 @@ docker-compose logs
 docker-compose down
 
 
-openssl s_client -connect localhost:8883 -cert ./ca/client.crt -key ./ca/client.key -CAfile ./ca/ca.crt
+openssl s_client -connect localhost:8883 -cert ./ca/client.crt -key ./ca/client.key -CAfile ./ca/gd_bundle-g2-g1.crt
 
 
 mosquitto_sub -h localhost -p 1883 -t test/topic
