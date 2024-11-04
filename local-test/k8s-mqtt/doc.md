@@ -1,14 +1,18 @@
 # vernemq
 
+## k8s 切换环境
+
+``` sh
+kubectl config get-contexts
+kubectl config use-context docker-desktop
+```
+
 ## helm install
 
 ``` sh
 helm install mqtt . -f values.yaml
-helm install mqtt .
 helm uninstall mqtt 
 helm upgrade mqtt . -f values.yaml
-
-# 
 helm install mqtt vernemq/vernemq
 ```
 
@@ -57,3 +61,8 @@ vmq-passwd /etc/vernemq/passwd admin
 mosquitto_pub -h 127.0.0.1 -p 1883 -t test/topic -m "Hello MQTT"
 ```
 
+## 查看 渲染后的 yaml
+
+``` sh
+helm template my-release ./templates/statefulset.yaml --values values.yaml > xxx.yaml
+```

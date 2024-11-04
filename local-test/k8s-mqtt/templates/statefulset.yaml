@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mqtt-vernemq 
+spec:
+  serviceName: mqtt-vernemq
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vernemq
+  template:
+    metadata:
+      labels:
+        app: vernemq
+    spec:
+      serviceAccountName: my-release-vernemq
+      securityContext:  
+        fsGroup: 10000
+        runAsGroup: 10000
+        runAsUser: 10000
+      containers:
+      - name: vernemq
+        image: vernemq/vernemq:latest
+        ports:
+        - name: mqtt
+          containerPort: 1883
+        env:
+        - name: DOCKER_VERNEMQ_ACCEPT_EULA
+          value: "yes"
+        - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+          value: "on"
