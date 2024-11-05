@@ -27,7 +27,7 @@ spec:
   type: NodePort
   ports:
     - port: 8883
-      targetPort: mqtt
+      targetPort: mqtt-ssl
       nodePort: 30883  # 可选：指定特定的端口号
       name: mqtt
   selector:

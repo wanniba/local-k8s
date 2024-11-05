@@ -3,10 +3,8 @@ kind: StatefulSet
 metadata:
   name: my-release-nginx
   labels:
-    app.kubernetes.io/name: vernemq
-    helm.sh/chart: vernemq-2.0.1
-    app.kubernetes.io/instance: my-release
-    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: vernemq-nginx
+    app.kubernetes.io/instance: my-release-nginx
 spec:
   serviceName: mqtt-vernemq-nginx
   replicas: 1

@@ -74,13 +74,11 @@ helm template my-release ./templates/statefulset.yaml --values values.yaml > xxx
 ## secret 
 
 ``` sh
-kubectl create secret tls server-tls \
-  --cert=./ca/client.crt \
-  --key=./ca/client.key
-
-kubectl create secret generic client-ca \
-  --from-file=ca-client=./ca/ca-client.crt
-
+kubectl create secret tls server-tls --cert=./ca/client.crt --key=./ca/client.key
+kubectl create secret tls server-tls --cert=./ca/server.crt --key=./ca/server.key
+kubectl delete secret server-tls
+kubectl create secret generic client-ca --from-file=ca-client=./ca/ca-client.crt
+kubectl delete secret client-ca
 
 kubectl describe  StatefulSet my-release-vernemq  
 kubectl describe  pod my-release-vernemq-0  
