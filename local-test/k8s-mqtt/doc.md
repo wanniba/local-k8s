@@ -49,6 +49,10 @@ kubectl exec -it mqtt-vernemq-0 -- vmq-admin plugin show
 kubectl port-forward svc/mqtt-vernemq 1883:1883
 mosquitto_sub -h 127.0.0.1 -p 1883 -t "test/topic"
 mosquitto_pub -h 127.0.0.1 -p 1883 -t test/topic -m "Hello MQTT"
+
+kubectl get nodes -o wide
+
+kubectl port-forward service/my-release-vernemq 30083:1883
 ```
 
 ## passwd
@@ -65,4 +69,23 @@ mosquitto_pub -h 127.0.0.1 -p 1883 -t test/topic -m "Hello MQTT"
 
 ``` sh
 helm template my-release ./templates/statefulset.yaml --values values.yaml > xxx.yaml
+```
+
+## secret 
+
+``` sh
+kubectl create secret tls server-tls \
+  --cert=./ca/client.crt \
+  --key=./ca/client.key
+
+kubectl create secret generic client-ca \
+  --from-file=ca-client=./ca/ca-client.crt
+
+
+kubectl describe  StatefulSet my-release-vernemq  
+kubectl describe  pod my-release-vernemq-0  
+
+kubectl get configmap nginx-config -o yaml
+
+
 ```

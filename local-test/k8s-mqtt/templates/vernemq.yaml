@@ -2,17 +2,24 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mqtt-vernemq 
+  name: my-release-vernemq
+  labels:
+    app.kubernetes.io/name: vernemq
+    helm.sh/chart: vernemq-2.0.1
+    app.kubernetes.io/instance: my-release
+    app.kubernetes.io/managed-by: Helm
 spec:
   serviceName: mqtt-vernemq
   replicas: 1
   selector:
     matchLabels:
-      app: vernemq
+      app.kubernetes.io/name: vernemq
+      app.kubernetes.io/instance: my-release
   template:
     metadata:
       labels:
-        app: vernemq
+        app.kubernetes.io/name: vernemq
+        app.kubernetes.io/instance: my-release
     spec:
       serviceAccountName: my-release-vernemq
       securityContext:  

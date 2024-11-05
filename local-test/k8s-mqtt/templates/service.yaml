@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-release-vernemq
+  name: my-release-vernemq-inner
 spec:
   type: ClusterIP
   ports:
@@ -9,5 +9,23 @@ spec:
       targetPort: mqtt
       name: mqtt
   selector:
+      app.kubernetes.io/name: vernemq
+      app.kubernetes.io/instance: my-release
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-release-vernemq
+  labels:
     app.kubernetes.io/name: vernemq
     app.kubernetes.io/instance: my-release
+spec:
+  type: NodePort
+  ports:
+    - port: 1883
+      targetPort: mqtt
+      nodePort: 30083  # 可选：指定特定的端口号
+      name: mqtt
+  selector:
+      app.kubernetes.io/name: vernemq
+      app.kubernetes.io/instance: my-release
