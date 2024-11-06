@@ -20,7 +20,13 @@ helm install mqtt vernemq/vernemq
 
 ``` sh
 kubectl get pod
-kubectl logs mqtt-vernemq-0
+kubectl logs mq-statefulset-0
+kubectl describe pod mq-statefulset-0
+
+kubectl exec -it mq-statefulset-0 -c nginx -- cat /var/log/nginx/error.log 
+
+kubectl logs mq-statefulset-0  -c nginx
+kubectl logs mq-statefulset-0 -c vernemq
 ```
 
 ## config

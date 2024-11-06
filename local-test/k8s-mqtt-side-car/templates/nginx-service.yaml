@@ -1,0 +1,17 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt-nodeport
+  labels:
+    app.kubernetes.io/name: vernemq-nginx-nodeport
+spec:
+  type: NodePort
+  ports:
+    - port: 8883
+      targetPort: mqtt-ssl
+      nodePort: 30883  # 可选：指定特定的端口号
+      name: mqtt
+  selector:
+    app.kubernetes.io/name: vernemq-nginx
+---

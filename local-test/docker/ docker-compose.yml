@@ -11,6 +11,7 @@ services:
       - "8888:8888"      # HTTP/WebSocket
     volumes:
       - vernemq-data:/vernemq/data
+      - vernemq-data:/vernemq/data
     environment:
       - DOCKER_VERNEMQ_ACCEPT_EULA=yes
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on

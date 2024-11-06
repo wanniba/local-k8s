@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mqtt-tsl-statefulset
+  labels:
+    app.kubernetes.io/name: vernemq-nginx
+    app.kubernetes.io/instance: my-release-nginx
+spec:
+  serviceName: mqtt-vernemq-nginx
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vernemq-nginx
+      app.kubernetes.io/instance: my-release-nginx
+  template:
+    metadata: 
+      labels:
+        app.kubernetes.io/name: vernemq-nginx
+        app.kubernetes.io/instance: my-release-nginx
+    spec:
+      serviceAccountName: my-release-vernemq
+      securityContext:
+        fsGroup: 101
+      containers:
+      - name: nginx
+        image: nginx:latest
+        securityContext:
+          runAsUser: 101
+          runAsGroup: 101
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+        ports:
+        - name: mqtt-tsl
+          containerPort: 8883  # 修改为MQTT SSL端口
+        volumeMounts:
+        - name: nginx-vernemq-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: client-ca
+          mountPath: /etc/nginx/crt/ca-client.crt
+          subPath: ca-client 
+        - name: server-tls
+          mountPath: /etc/nginx/crt/server.crt
+          subPath: tls.crt
+        - name: server-tls
+          mountPath: /etc/nginx/crt/server.key
+          subPath: tls.key
+        - name: nginx-run
+          mountPath: /var/run
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-logs
+          mountPath: /var/log/nginx
+      - name: vernemq
+        securityContext:
+          runAsUser: 0
+          fsGroup: 0
+        image: vernemq/vernemq:latest
+        ports:
+        - name: mqtt
+          containerPort: 1883
+        volumeMounts:
+        - name: nginx-vernemq-config
+          mountPath: /vernemq/etc/vernemq.conf
+          subPath: vernemq.conf
+      volumes:
+      - name: nginx-vernemq-config
+        configMap:
+          name: nginx-vernemq-config
+      - name: server-tls
+        secret:
+          secretName: server-tls
+      - name: client-ca
+        secret:
+          secretName: client-ca
+      - name: nginx-run
+        emptyDir: {}
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-logs
+        emptyDir: {}

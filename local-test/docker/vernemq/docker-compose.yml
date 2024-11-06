@@ -6,15 +6,15 @@ services:
     container_name: vernemq-stl
     ports:
       - "1883:1883"
-      - "8883:8883"  # 添加 TLS 端口
+      # - "8883:8883"  # 添加 TLS 端口
     environment:
       - DOCKER_VERNEMQ_ACCEPT_EULA=yes
       - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug  # 设置日志级别为 debug
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=off  # TLS 通常不建议允许匿名
-      - DOCKER_VERNEMQ_LISTENER__SSL__CAFILE=/vernemq/certs/ca.crt #客户端CA 证书文件路径。
-      - DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE=/vernemq/certs/server.crt # 服务器证书路径。
-      - DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE=/vernemq/certs/server-key.pem #服务器私钥路径。
-      - DOCKER_VERNEMQ_LISTENER__SSL__REQUIRE_CERTIFICATE=on  # 如果需要验证客户端证书
+      # - DOCKER_VERNEMQ_LISTENER__SSL__CAFILE=/vernemq/certs/ca.crt #客户端CA 证书文件路径。
+      # - DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE=/vernemq/certs/server.crt # 服务器证书路径。
+      # - DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE=/vernemq/certs/server-key.pem #服务器私钥路径。
+      # - DOCKER_VERNEMQ_LISTENER__SSL__REQUIRE_CERTIFICATE=on  # 如果需要验证客户端证书
     volumes:
       - ./ca:/vernemq/certs  # 将主机的证书文件夹挂载到容器
     user: "0:0"  

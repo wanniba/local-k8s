@@ -1,0 +1,15 @@
+# deviceUser Permissions
+deviceUser,subscribe,devices/+/status,1
+deviceUser,publish,devices/+/data,1
+deviceUser,publish,CTRL,0
+
+# adminUser Permissions
+adminUser,subscribe,#,1
+adminUser,publish,#,1
+adminUser,publish,system/commands,1
+adminUser,subscribe,logs/#,1
+
+# opUser Permissions
+opUser,subscribe,system/monitoring,1
+opUser,subscribe,logs/errors,1
+opUser,publish,system/alerts,1

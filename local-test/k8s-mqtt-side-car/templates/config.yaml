@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-vernemq-config
+data:
+  nginx.conf: |
+{{- tpl ($.Files.Get "config/nginx.conf") . | nindent 4 }}
+  vernemq.conf: |
+{{- tpl ($.Files.Get "config/vernemq.conf") . | nindent 4 }}

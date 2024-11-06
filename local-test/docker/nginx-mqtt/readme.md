@@ -16,4 +16,6 @@ openssl s_client -connect localhost:8883 -cert ./ca/client.crt -key ./ca/client.
 mosquitto_sub -h localhost -p 1883 -t test/topic
 
 penssl x509 -in server.crt -text -noout
+
+touch /etc/vernemq/password_file
 ```

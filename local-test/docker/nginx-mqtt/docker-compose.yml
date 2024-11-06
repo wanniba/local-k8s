@@ -21,12 +21,14 @@ services:
     container_name: vernemq6
     ports:
       - "1883:1883"
-    environment:
-      - DOCKER_VERNEMQ_ACCEPT_EULA=yes
-      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+    entrypoint: ["/bin/sh", "-c", "/init-script.sh && /vernemq/bin/vernemq start"]
+    volumes:
+      - ./vernemq/vernemq.conf:/vernemq/etc/vernemq.conf
+      - ./vernemq/vmq.passwd:/etc/vernemq/vmq.passwd
+      - ./vernemq/init-script.sh:/init-script.sh
     networks:
       - mqtt-network-1
-    restart: unless-stopped
+    # restart: unless-stopped
 
 networks:
   mqtt-network-1:
