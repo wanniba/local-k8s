@@ -34,7 +34,7 @@ spec:
             add:
             - NET_BIND_SERVICE
         ports:
-        - name: mqtt-tsl
+        - name: mqtt-ssl
           containerPort: 8883  # 修改为MQTT SSL端口
         volumeMounts:
         - name: nginx-vernemq-config
@@ -63,10 +63,16 @@ spec:
         ports:
         - name: mqtt
           containerPort: 1883
-        volumeMounts:
-        - name: nginx-vernemq-config
-          mountPath: /vernemq/etc/vernemq.conf
-          subPath: vernemq.conf
+        env:
+        - name: DOCKER_VERNEMQ_ACCEPT_EULA
+          value: "yes"
+        - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+          value: "on"
+        # volumeMounts:
+        # - name: nginx-vernemq-config
+        #   mountPath: /vernemq/etc/vernemq.conf
+        #   subPath: vernemq.conf
+        #   readOnly: false
       volumes:
       - name: nginx-vernemq-config
         configMap:

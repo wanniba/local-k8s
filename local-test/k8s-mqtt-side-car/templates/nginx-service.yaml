@@ -9,9 +9,24 @@ spec:
   type: NodePort
   ports:
     - port: 8883
-      targetPort: mqtt-ssl
+      targetPort: 8883
       nodePort: 30883  # 可选：指定特定的端口号
-      name: mqtt
+      name: mqtt-node-port
   selector:
     app.kubernetes.io/name: vernemq-nginx
 ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mqtt-vernemq-nginx-inner
+#   labels:
+#     app.kubernetes.io/name: vernemq-nginx
+# spec:
+#   type: ClusterIP  # 根据您的需求可以改为NodePort或LoadBalancer
+#   ports:
+#   - name:  mqtt-inner
+#     port: 8883
+#     targetPort: 8883
+#     protocol: TCP
+#   selector:
+#     app.kubernetes.io/name: vernemq-nginx
