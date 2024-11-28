@@ -121,3 +121,4 @@ Replace `<base64-encoded-content-from-generate_vmq_passwd.py>` and `<base64-enco
 - Verify that `userpasswd.txt` and `useracl.txt` files are correctly formatted to avoid errors during processing.
 - These scripts are intended for environments where VerneMQ is used with Kubernetes, but the generated files can also be used directly in any VerneMQ deployment.
 
+docker run -d --name vernemq -p 1883:1883 -p 8883:8883 -p 8080:8080 vernemq/vernemq

@@ -1,0 +1,9 @@
+user ks
+topic foo
+topic read baz
+topic write open_to_all
+
+user henry
+topic open_to_all
+topic read foo
+topic write baz

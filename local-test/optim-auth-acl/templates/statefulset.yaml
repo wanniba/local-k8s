@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mqtt-tsl-statefulset
+  labels:
+    app.kubernetes.io/name: vernemq-nginx
+    app.kubernetes.io/instance: my-release-nginx
+spec:
+  serviceName: mqtt-vernemq-nginx
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vernemq-nginx
+      app.kubernetes.io/instance: my-release-nginx
+  template:
+    metadata: 
+      labels:
+        app.kubernetes.io/name: vernemq-nginx
+        app.kubernetes.io/instance: my-release-nginx
+    spec:
+      serviceAccountName: my-release-vernemq
+      securityContext:
+        fsGroup: 101
+      containers:
+      - name: vernemq
+        securityContext:
+          runAsUser: 0
+          fsGroup: 0
+        image: vernemq/vernemq:latest
+        command: 
+        - /bin/sh
+        - -c
+        - |
+          # 复制只读的 secret 文件到可写位置
+          cp /etc/vernemq/vmq.passwd.orig /etc/vernemq/vmq.passwd
+          # 使用 vmq-passwd -U 升级密码文件
+          vmq-passwd -U /etc/vernemq/vmq.passwd
+          # 删除原始文件
+          rm /etc/vernemq/vmq.passwd.orig
+          # 执行原始的 VerneMQ 启动脚本
+          exec /usr/sbin/start_vernemq
+        ports:
+        - name: mqtt
+          containerPort: 1883
+        env:
+        - name: DOCKER_VERNEMQ_ACCEPT_EULA
+          value: "yes"
+        - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+          value: "on"
+        volumeMounts:
+        - name: nginx-vernemq-config
+          mountPath: /etc/vernemq/vernemq.conf
+          subPath: vernemq.conf
+          readOnly: false
+        - name: vernemq-passwd-secret
+          mountPath: /etc/vernemq/vmq.passwd.orig
+          subPath: vmq.passwd  
+          readOnly: false
+      volumes:
+      - name: nginx-vernemq-config
+        configMap:
+          name: nginx-vernemq-config
+      - name: vernemq-passwd-secret
+        secret:
+          secretName: vernemq-passwd-secret
+          

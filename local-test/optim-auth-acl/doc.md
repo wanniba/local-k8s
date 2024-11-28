@@ -99,3 +99,32 @@ kubectl get configmap nginx-config -o yaml
 
 
 ```
+
+## auth
+
+``` sh
+
+helm install mqtt .
+helm uninstall mqtt 
+cat /etc/vernemq/vmq.passwd 
+vim /etc/vernemq/vmq.passwd 
+
+kubectl get pod
+kubectl describe pod mqtt-tsl-statefulset-0 
+kubectl logs mqtt-tsl-statefulset-0 
+kubectl exec -it mqtt-tsl-statefulset-0 -- /bin/bash
+vmq-passwd -c /etc/vernemq/vmq.passwd henry
+vmq-passwd  /etc/vernemq/vmq.passwd sss
+vmq-passwd -c /etc/vernemq/vmq.passwd henry
+
+
+ vmq-passwd  -U vmq
+
+ kubectl port-forward svc/my-service 8080:80
+
+kubectl create secret generic vernemq-passwd-secret --from-file=vmq.passwd=./passwd.conf
+kubectl create secret generic vernemq-acl --from-file=vmq.acl=./user.acl
+kubectl delete secret vernemq-passwd-secret
+kubectl exec -it mqtt-tsl-statefulset-0 -- /bin/bash
+cat /vernemq/data/generated.configs/app.2024.11.28.05.16.39.config 
+```
